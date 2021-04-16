@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>vue-infinite-scroll</title>
+
+  <style>
+    .box {
+      width: 200px;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bricklayer/0.4.2/bricklayer.min.css">
+</head>
+
+<body>
+  <div class="app bricklayer" style="background-color: #ccc;width: 1200px;margin: 0 auto;" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+
+
+  </div>
+  <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/bricklayer/0.4.2/bricklayer.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.min.js"></script>
+  <script src="../vue-infinite-scroll.js"></script>
+  <script>
+    var app = document.querySelector('.app');
+    var index = 1;
+    new Vue({
+      el: app,
+      data: function () {
+        return {
+          busy: false
+        }
+      },
+      methods: {
+        loadMore: function () {
+          var self = this;
+          self.busy = true;
+          setTimeout(async function () {
+            var app = document.querySelector('.app')
+            var height = app.clientHeight;
+            console.log('fetching page: ' + index);
+            const items = await fetchPublications(index);
+            for (const item of items) {
+              let div = document.createElement('div');
+              div.className = 'box';
+              div.innerHTML = item.demozoo_url;
+
+              app.appendChild(div);
+            }
+            self.busy = false
+          }, 1000)
+        }
+      }
+    })
+
+    async function fetchPublications(page) {
+      const res = await axios.get(`http://demozoo.org/api/v1/productions/?page=${page}&format=json`);
+      index++;
+      return res.data.results;
+    }
+
+  </script>
+</body>
+
+</html>
