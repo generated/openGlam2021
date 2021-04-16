@@ -2,5 +2,5 @@
 
 vue-infinite-scroller for loading and displaying demo projects
 
-### start
+## start
 simply open example/index.html
