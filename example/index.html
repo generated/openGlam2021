@@ -5,7 +5,18 @@
   <meta charset="utf-8">
   <title>vue-infinite-scroll</title>
 
+  <!-- <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet"> -->
+
   <style>
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      /* font-family: 'Zen Dots', cursive;
+      font-size: 80px; */
+    }
+
     .box {
       width: 200px;
       height: 200px;
@@ -15,20 +26,324 @@
       text-align: center;
     }
 
+
+    #particles-js .particles-js-canvas-el {
+      cursor: default;
+      -ms-transform: scale(1);
+      -webkit-transform: scale(1);
+      transform: scale(1);
+      opacity: 1;
+      -webkit-animation: appear 1.4s 1;
+      animation: appear 1.4s 1;
+      -webkit-animation-fill-mode: forwards;
+      animation-fill-mode: forwards;
+    }
+
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bricklayer/0.4.2/bricklayer.min.css">
+  <link rel="stylesheet" href="../particles.css" media="screen" />
 </head>
 
 <body>
-  <div class="app bricklayer" style="background-color: #ccc;width: 1200px;margin: 0 auto;" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+  <div style="position: absolute; width: 100%; height: 400px; display: flex; justify-content: center; align-items: center;">
+    <!-- <h1>the scene lives</h1> -->
+  </div>
 
+
+  <div onclick="bang()" id="particles-js" style="height: 400px;">
+  </div>
+
+  <!-- <button onclick="addGroup()">New Group</button>
+  <button onclick="revert()">Zurück</button>
+  <button onclick="output()">Output</button>
+  <button onclick="debug()">Debug</button>
+  <br />
+  <label>Group <custom id="group">0</custom></label> -->
+
+  <div class="app bricklayer" style="background-color: #ccc;width: 1200px;margin: 0 auto;" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
 
   </div>
   <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/bricklayer/0.4.2/bricklayer.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.min.js"></script>
   <script src="../vue-infinite-scroll.js"></script>
+  <script src="../jquery.js"></script>
+  <script src="../paths.js"></script>
+  <script src="../particles.js"></script>
   <script>
+    var groups = [];
+    var activeGroup = {
+      index: 0,
+      particles: []
+    };
+
+    groups.push(activeGroup);
+
+    var hidden = false;
+
+    function addPoint(event) {
+      var x = event.clientX; // Get the horizontal coordinate
+      var y = event.clientY; // Get the vertical coordinate
+      var coor = "X coords: " + x + ", Y coords: " + y;
+
+      pJS[0].pJS.fn.modes.pushParticles(1, {
+        pos_x: x,
+        pos_y: y
+      }, activeGroup.index, 1, []);
+
+      activeGroup.particles.push({
+        pos_x: x,
+        pos_y: y
+      });
+    }
+
+    function debug() {
+      console.log(groups);
+    }
+
+    function addGroup() {
+      $('#group').text(activeGroup.index + 1);
+      var group = {
+        index: activeGroup.index + 1,
+        particles: []
+      };
+      groups.push(group);
+      activeGroup = group;
+    }
+
+    function revert() {
+      pJS[0].pJS.fn.modes.removeParticles(activeGroup.particles.length);
+      activeGroup.particles = [];
+    }
+
+    function output() {
+      dumpObject(pJS[0].pJS.particles);
+    }
+
+    function dumpObject(object) {
+      let newWindow = window.open("about:blank", "", "_blank");
+      if (newWindow) {
+        newWindow.document.write(JSON.stringify(object));
+      }
+    }
+
+    function dump() {
+      var gulags = [];
+      for (var i = 0; i < pJS[0].pJS.particles.array.length; i++) {
+        if (pJS[0].pJS.particles.array[i].path && pJS[0].pJS.particles.array[i].path.length != 0) {
+
+          var particle = pJS[0].pJS.particles.array[i];
+          var gügs = {
+            index: particle.group,
+            pos_x: particle.x,
+            pos_y: particle.y,
+            path: particle.path
+          };
+
+          gulags.push(gügs);
+        }
+      }
+
+      dumpObject(gulags);
+    }
+
+    var bangActive = false;
+
+    function bang() {
+
+      if (bangActive == false) {
+        pJS[0].pJS.MoveFixed = true;
+        bangActive = true;
+        setTimeout(x => {
+          pJS[0].pJS.MoveFixed = false;
+        }, 3500);
+        bangActive = false;
+      }
+    }
+
+    function init() {
+      var minX = 9999;
+      var minY = 9999;
+      var maxX = 0;
+      var maxY = 0;
+
+      // find outside boundaries
+      $(initPaths).each(function (index, group) {
+        $(group.particles).each(function (i, p) {
+
+          p.pos_x = p.pos_x * 2;
+          p.pos_y = p.pos_y * 2;
+
+          if (p.pos_x < minX)
+            minX = p.pos_x;
+          if (p.pos_y < minY)
+            minY = p.pos_y;
+
+          if (p.pos_x > maxX)
+            maxX = p.pos_x;
+          if (p.pos_y > maxY)
+            maxY = p.pos_y;
+        });
+      });
+
+      $(initPaths).each(function (index, group) {
+        $(group.particles).each(function (i, p) {
+          // p.pos_x -= minX;
+          // p.pos_x += (pJS[0].pJS.canvas.w / 2) - (226.5 / 2);
+          // p.pos_y -= minY;
+          // p.pos_y += 220;
+
+
+
+          pJS[0].pJS.fn.modes.pushParticles(1, undefined, group.index, 1, { x: p.pos_x, y: p.pos_y });
+        });
+      });
+    }
+
+    var pJS;
+    var slideCount = 0;
+    jQuery(function ($) {
+      pJS = particlesJS('particles-js', {
+        "particles": {
+          "number": {
+            "value": 0,
+            "density": {
+              "enable": true,
+              "value_area": 800
+            }
+          },
+          "color": {
+            "value": "#ffffff"
+          },
+          "shape": {
+            "type": "circle",
+            "stroke": {
+              "width": 0,
+              "color": "#000000"
+            },
+            "polygon": {
+              "nb_sides": 5
+            },
+            "image": {
+              "src": "img/github.svg",
+              "width": 100,
+              "height": 100
+            }
+          },
+          "opacity": {
+            "value": 0.5,
+            "random": false,
+            "anim": {
+              "enable": false,
+              "speed": 1,
+              "opacity_min": 0.1,
+              "sync": false
+            }
+          },
+          "size": {
+            "value": 3,
+            "random": true,
+            "anim": {
+              "enable": false,
+              "speed": 10,
+              "size_min": 0.1,
+              "sync": false
+            }
+          },
+          "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#ffffff",
+            "opacity": 0.4,
+            "width": 1
+          },
+          "move": {
+            "enable": true,
+            "speed": 3,
+            "direction": "none",
+            "random": false,
+            "straight": false,
+            "out_mode": "out",
+            "attract": {
+              "enable": true,
+              "rotateX": 600,
+              "rotateY": 1200
+            }
+          }
+        },
+        "interactivity": {
+          "detect_on": "canvas",
+          "events": {
+            "onhover": {
+              "enable": true,
+              "mode": "repulse"
+            },
+            "onclick": {
+              "enable": false,
+              "mode": "push"
+            },
+            "resize": true
+          },
+          "modes": {
+            "grab": {
+              "distance": 400,
+              "line_linked": {
+                "opacity": 1
+              }
+            },
+            "bubble": {
+              "distance": 400,
+              "size": 40,
+              "duration": 2,
+              "opacity": 8,
+              "speed": 3
+            },
+            "repulse": {
+              "distance": 200
+            },
+            "push": {
+              "particles_nb": 4
+            },
+            "remove": {
+              "particles_nb": 2
+            }
+          }
+        },
+        "retina_detect": true,
+        "config_demo": {
+          "hide_card": false,
+          "background_color": "#b61924",
+          "background_image": "",
+          "background_position": "50% 50%",
+          "background_repeat": "no-repeat",
+          "background_size": "cover"
+        }
+      });
+
+      //### REF SLIDE INIT
+      var refSlides = $('.ref-slide');
+      slideCount = refSlides.length;
+
+      $(refSlides).each(function (index, slide) {
+        $(slide).css('width', 100 / slideCount + '%');
+      });
+
+      $('#ref-button-slide').css('width', 100 / slideCount + '%');
+
+      $('#carousel').css('width', slideCount * 100 + '%');
+      //### REF SLIDE INIT
+
+      init();
+    });
+
+
+
+
+
+
+
+
+
     var app = document.querySelector('.app');
     var index = 1;
     new Vue({
