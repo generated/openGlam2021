@@ -102,7 +102,7 @@
 
     async function fetchPublications(page) {
       const per_page = 30;
-      const res = await axios.get(`http://x.datalets.ch/productions?page=${page}&per_page=${per_page}`);
+      const res = await axios.get(`https://x.datalets.ch/productions?page=${page}&per_page=${per_page}`);
       index++;
       return res.data;
     }
