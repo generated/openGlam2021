@@ -542,8 +542,6 @@ var pJS = function (tag_id, params) {
     }
   };
 
-  var first = true;
-
   pJS.fn.particlesUpdate = function () {
 
     for (var i = 0; i < pJS.particles.array.length; i++) {
@@ -559,12 +557,6 @@ var pJS = function (tag_id, params) {
       var revertPath = false;
       if (p.group != 0 && !pJS.MoveFixed) {
         if (p.deviation > 0) {
-
-          if (first) {
-            console.log(p);
-            first = false;
-          }
-
           p.x += (p.finalPos.x - p.x) / p.deviation;
           p.y += (p.finalPos.y - p.y) / p.deviation;
           p.deviation--;

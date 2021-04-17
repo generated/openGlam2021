@@ -13,21 +13,26 @@
     body {
       padding: 0;
       margin: 0;
+      background-color: black;
+      color: white;
       /* font-family: 'Zen Dots', cursive;
       font-size: 80px; */
     }
 
     .box {
-      width: 200px;
-      height: 200px;
+      width: 240px;
+      height: auto;
       display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
+      padding: 5px 5px 10px;
+      font-family: monospace;
     }
 
 
     #particles-js .particles-js-canvas-el {
+      position: absolute;
       cursor: default;
       -ms-transform: scale(1);
       -webkit-transform: scale(1);
@@ -39,19 +44,65 @@
       animation-fill-mode: forwards;
     }
 
+    .box type {
+      font-size: 80%;
+      background-color: black;
+      color: white;
+      padding: 3px;
+      margin-right: 5px;
+      text-decoration: none;
+      clear: both;
+      margin-top: 10em;
+    }
+
+    .box name,
+    .box a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .box img {
+      width: 100%;
+    }
+
+    .no_screenshot {
+      background: #bbb no-repeat 50%;
+      background-image: url("https://demozoo.org/static/images/turntable.9e4382463cd6.png");
+      min-width: 240px;
+      height: 170px;
+      width: 100%;
+      padding-bottom: 5px;
+    }
+
+    #hint {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    /* .box .art {
+      display: block;
+      width: 100%;
+      height: 10em;
+      background-repeat: no-repeat;
+      background-size: cover;
+    } */
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bricklayer/0.4.2/bricklayer.min.css">
   <link rel="stylesheet" href="../particles.css" media="screen" />
 </head>
 
 <body>
-  <div style="position: absolute; width: 100%; height: 400px; display: flex; justify-content: center; align-items: center;">
-    <!-- <h1>the scene lives</h1> -->
-  </div>
+  <!-- <div style="position: absolute; width: 100%; height: 400px; display: flex; justify-content: center; align-items: center;">
+    <h1>the scene lives</h1>
+  </div> -->
 
-
-  <div onclick="bang()" id="particles-js" style="height: 400px;">
+  <div onclick="bang()" id="particles-js" style="position: absolute; height: 100vh; z-index: 1;">
   </div>
+  <div style="position:relative; height: 400px; width: 100%;"></div>
 
   <!-- <button onclick="addGroup()">New Group</button>
   <button onclick="revert()">Zurück</button>
@@ -60,7 +111,11 @@
   <br />
   <label>Group <custom id="group">0</custom></label> -->
 
-  <div class="app bricklayer" style="background-color: #ccc;width: 1200px;margin: 0 auto;" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+  <div id="hint">
+    <label>This is a project made on the hackaton openGLAM2021 with the effor to bring the demo scene to a wider audience</label>
+  </div>
+
+  <div class="app bricklayer" style="position: relative; z-index: 2; width: 1200px;margin: 0 auto;" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
 
   </div>
   <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/bricklayer/0.4.2/bricklayer.min.js"></script> -->
@@ -166,6 +221,10 @@
       var minY = 9999;
       var maxX = 0;
       var maxY = 0;
+
+      setTimeout(() => {
+        $('#hint').css('opacity', 1);
+      }, 3500);
 
       // find outside boundaries
       $(initPaths).each(function (index, group) {
@@ -345,7 +404,7 @@
 
 
     var app = document.querySelector('.app');
-    var index = 1;
+    var index = 2;
     new Vue({
       el: app,
       data: function () {
@@ -365,7 +424,14 @@
             for (const item of items) {
               let div = document.createElement('div');
               div.className = 'box';
-              div.innerHTML = item.demozoo_url;
+              div.innerHTML = '' +
+                '<a target="_blank" href="' + item.uri + '">' +
+                (item.thumbnail_url ?
+                  '<img src="' + item.thumbnail_url + '"/>' :
+                  '<div class="no_screenshot"></div>') +
+                '<type>' + item.production_type + '</type>' +
+                '<name>' + item.title + '</name>' +
+                '</a>';
 
               app.appendChild(div);
             }
@@ -376,9 +442,10 @@
     })
 
     async function fetchPublications(page) {
-      const res = await axios.get(`http://demozoo.org/api/v1/productions/?page=${page}&format=json`);
+      const per_page = 30;
+      const res = await axios.get(`http://x.datalets.ch/productions?page=${page}&per_page=${per_page}`);
       index++;
-      return res.data.results;
+      return res.data;
     }
 
   </script>
